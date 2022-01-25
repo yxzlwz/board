@@ -110,7 +110,7 @@ def board(name):
     name = name.lower()
     if rooms.get(name) and rooms[name] == "private" and session[
             "username"] not in private_rooms[name]["members"]:
-        return "错误：您无权访问该private界面！", 403
+        return "错误：您无权访问该private房间！", 403
     if request.method == "POST":
         if request.form.get("text"):
             if request.form["send_type"] == "public" or rooms.get(
