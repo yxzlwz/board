@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width" initial-scale="1"/>
+    <title>{{ name }} - 异想之旅留言板</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" sizes="144x144" href="/static/favicon.png"/>
+    <style>
+        body {
+            margin: 20px;
+        }
+
+        p, div {
+            font-size: 117%;
+        }
+    </style>
+</head>
+<body>
+<textarea id="text" class="form-control" rows="4" name="text"
+          placeholder="请输入你要发送的文本。使用平台发送消息完全匿名，请放心使用。目前兼容回车符和缩进符但不兼容单独的空格，请谅解。"></textarea>
+<br/>
+<button id="text_submit" type="submit" name="submit" class="btn btn-success btn-block">
+    加载中...
+</button>
+<button id="change" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+    切换身份
+</button>
+{% if room_type == "private" %}
+<button class="btn btn-info" style="width: 100%; margin-top: 10px;" onclick="alert(token)">
+    展示房间密钥
+</button>
+{% endif %}
+<br/>
+<br/>
+<hr/>
+{% if chat %}
+    {% for i in chat %}
+        <h4>
+            <b>{{ i.0 }}</b>
+            &emsp;
+            <small alt="{{ i.2 }}"></small>
+        </h4>
+        <div>
+            {% for j in i.1 %}
+                <p style="line-height: 20px;">
+                    {% for k in range(j|length - 1) %}
+                        {{ j[k]|replace("<", "&lt;")|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                    {% endfor %}
+                    {{ j|last|replace("<", "&lt;")|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
+                </p>
+            {% endfor %}
+        </div>
+        <hr/>
+    {% endfor %}
+{% else %}
+    <h4>
+        暂无消息：请发出第一条声音！
+    </h4>
+    <hr/>
+{% endif %}
+</body>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/moment.js/2.24.0/moment.min.js"></script>
+<script src="https://cdn.staticfile.org/moment.js/2.24.0/locale/zh-cn.js"></script>
+<script>
+    function getQueryVariable(variable) {
+        let query = window.location.search.substring(1);
+        let vars = query.split("&");
+        for (let i = 0; i < vars.length; i++) {
+            let pair = vars[i].split("=");
+            if (pair[0] === variable) {
+                return pair[1];
+            }
+        }
+        return false;
+    }
+</script>
+<script>
+    function time_update() {
+        $("small").each(function () {
+            $(this).text(moment(Number($(this).attr("alt"))).fromNow());
+        })
+        setTimeout(time_update, 20000);
+    }
+
+    time_update();
+</script>
+<script>
+    const username = "{{ username }}", private = "{{ private }}", room_type = "{{ room_type }}", token = "{{ token }}";
+    console.log("异想之旅长期寻找志同道合的朋友一起加入开发团队！mail@yixiangzhilv.com");
+    const room = window.location.href.split("/")[3].split("?")[0].toLowerCase();
+    let send_type = localStorage.getItem(room);
+    if (send_type === "public") send_type = "private";
+    else send_type = "public";
+    if (room_type === "private") {
+        send_type = "private";
+        $("#change").attr("title", "private类型房间不支持私密身份").attr("disabled", "disabled").css("cursor", "not-allowed");
+    }
+    $("#change").click(function () {
+        if (send_type === "private") {
+            if (!username) {
+                if (confirm("切换失败：您还未登录！点击确定将跳转登录界面。")) {
+                    window.open("https://login.yixiangzhilv.com/?from=" + window.location.href, "_self");
+                } else {
+                    return;
+                }
+            }
+            send_type = "public";
+            localStorage.setItem(room, "public");
+            $("#text_submit").text("以“" + username + "”身份发送");
+            $("#change").html("切换到私密身份");
+        } else {
+            send_type = "private";
+            localStorage.setItem(room, "private");
+            $("#text_submit").text("以“" + private + "”身份发送");
+            $("#change").html("切换到公开身份");
+        }
+    }).click();
+
+    $("#text_submit").click(function () {
+        let text = $("#text").val();
+        if (text === "") {
+            return;
+        }
+        $.post("", {
+            "text": text,
+            "send_type": send_type
+        }, function (result) {
+            console.log(result);
+            if (result === "Success") location.reload();
+            else alert(result);
+        })
+    })
+</script>
+</html>

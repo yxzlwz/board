@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" initial-scale="1"/>
+    <title>异想之旅留言板</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" sizes="144x144" href="/static/favicon.png" />
+    <style>
+        body {
+            margin: 20px;
+        }
+        p, div {
+             font-size: 117%;
+        }
+    </style>
+</head>
+<body>
+	<div class="card" style="border-radius: 30px; padding: 20px;">
+        <div class="card-body">
+            <h3>{{ username or private }}，欢迎访问！</h3>
+            {% if not username %}
+                <p><b>请先<a href="https://login.yixiangzhilv.com/">登录</a>，登录后可使用该页面提供的服务。</b></p>
+            {% endif %}
+            <br />
+            <h3>创建私密房间</h3>
+            <input id="name" class="form-control" placeholder="请输入房间名称" />
+            <input id="member" class="form-control" placeholder="请输入房间成员（用“,”分隔，不包含引号，前后不得包含空格）" />
+            <button type="button" onclick="submit()" class="btn btn-primary form-control">提交</button>
+            <br />
+            <p style="font-size: 16px">
+                *默认包含自己，请勿重复添加。
+                <br />
+                *如果想要重设已创建房间的成员，也请通过此设置。
+                <br />
+                <br />
+                <a href="https://docs.apipost.cn/preview/1227959dbc2c7ff7/83ce08e9f0060cb2?target_id=5e5faeaa-fae3-412e-ad5b-3db14d7a46ca#5e5faeaa-fae3-412e-ad5b-3db14d7a46ca" target="_blank">
+                    点我跳转API文档
+                </a>
+                <br />
+                <br />
+                遇到任何问题，请联系我们：<a href="mailto:mail@yixiangzhilv.com">mail@yixiangzhilv.com</a>
+            </p>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    function submit(){
+        $.post("", {
+            "name": $("#name").val(),
+            "member": $("#member").val()
+        }, function (res){
+            alert(res);
+        })
+    }
+</script>
+</html>
