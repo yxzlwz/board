@@ -167,8 +167,10 @@ def index():
         if name in rooms.keys():
             if rooms[name] == "public":
                 return "操作失败：该房间已作为公共房间使用，无法设置私有。"
-            while members[-1] == ",":
-                members = members[:-1]
+            members = members.split(",")
+            while "" in members:
+                members.remove("")
+            members = ",".join(members)
             if private_rooms[name]["owner"] != session["username"]:
                 return "操作失败：该房间已存在且不属于您！"
             mysql.update("rooms", {"members": members}, {"room": name})
