@@ -4,11 +4,13 @@ import random
 import time
 
 from flask import *
+import flask_cors
 import lightmysql
 
 import config
 
 app = Flask(__name__)  # 初始化app对象
+flask_cors.CORS(app, supports_credentials=True)
 app.secret_key = "yxzlchatbox"  # session的加密密钥
 thisDir = os.path.dirname(__file__)  # 相对目录
 mysql = lightmysql.Connect(config.m_host,
