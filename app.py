@@ -60,6 +60,7 @@ def info_init():
 
 @app.route("/api", methods=["GET", "POST"])
 def api():
+    global rooms, private_rooms
     result = {}
     try:
         name = request.values["room"].lower()
@@ -106,6 +107,7 @@ def api():
 
 @app.route("/<name>", methods=["GET", "POST"])
 def board(name):
+    global rooms, private_rooms
     info_init()
     name = name.lower()
     if rooms.get(name) and rooms[name] == "private" and session[
@@ -118,6 +120,9 @@ def board(name):
                 user = session["username"]
             else:
                 user = session["private"]
+            if name not in rooms.keys():
+                mysql.insert("rooms", {"room": name, "type": "public"})
+                rooms[name] = "public"
             mysql.insert(
                 "messages", {
                     "room": name,
@@ -125,9 +130,7 @@ def board(name):
                     "content": request.form["text"].replace("\r\n", "\n"),
                     "time": round(time.time() * 1000)
                 })
-            if name not in rooms.keys():
-                mysql.insert("rooms", {"room": name, "type": "public"})
-                rooms[name] = "public"
+
         return "Success"
     else:
         data = mysql.select("messages", ["user", "content", "time"],
@@ -152,6 +155,7 @@ def board(name):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    global rooms, private_rooms
     info_init()
     if request.method == "POST":
         name = request.form["name"].lower()
