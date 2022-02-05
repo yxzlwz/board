@@ -33,6 +33,12 @@ for i in _:
         }
 
 
+def check(name):
+    if name.startswith(config.admin_room_startswith) and session["username"] not in config.admins:
+        return "操作失败：该名称为异想之旅保留使用。"
+    return False
+
+
 def generate_random_str(random_length=16):
     random_str = ""
     for i in range(random_length):
@@ -115,6 +121,8 @@ def board(name):
     if rooms.get(name) and rooms[name] == "private" and session[
             "username"] not in private_rooms[name]["members"]:
         return "错误：您无权访问该private房间！", 403
+    elif check(name):
+        return check(name), 403
     if request.method == "POST":
         if request.form.get("text"):
             if request.form["send_type"] == "public" or rooms.get(
@@ -164,7 +172,9 @@ def index():
         members = session["username"] + "," + request.form["member"]
         if not session["username"]:
             return "操作失败：您还未登录！"
-        if name in rooms.keys():
+        elif check(name):
+            return check(name)
+        elif name in rooms.keys():
             if rooms[name] == "public":
                 return "操作失败：该房间已作为公共房间使用，无法设置私有。"
             members = members.split(",")
