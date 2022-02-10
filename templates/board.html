@@ -1,65 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width" initial-scale="1"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" initial-scale="1" />
     <title>{{ name }} - 异想之旅留言板</title>
     <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="icon" type="image/png" sizes="144x144" href="/static/favicon.png"/>
+    <link rel="icon" type="image/png" sizes="144x144" href="/static/favicon.png" />
     <style>
         body {
             margin: 20px;
         }
 
-        p, div {
+        p,
+        div {
             font-size: 117%;
         }
     </style>
 </head>
+
 <body>
-<textarea id="text" class="form-control" rows="4" name="text"
-          placeholder="请输入你要发送的文本。使用平台发送消息完全匿名，请放心使用。目前兼容回车符和缩进符但不兼容单独的空格，请谅解。"></textarea>
-<br/>
-<button id="text_submit" type="submit" name="submit" class="btn btn-success btn-block">
-    加载中...
-</button>
-<button id="change" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-    切换身份
-</button>
-{% if room_type == "private" %}
-<button class="btn btn-info" style="width: 100%; margin-top: 10px;" onclick="alert(token)">
-    展示房间密钥
-</button>
-{% endif %}
-<br/>
-<br/>
-<hr/>
-{% if chat %}
+    <textarea id="text" class="form-control" rows="4" name="text"
+        placeholder="请输入你要发送的文本。使用平台发送消息完全匿名，请放心使用。目前兼容回车符和缩进符但不兼容单独的空格，请谅解。"></textarea>
+    <br />
+    <button id="text_submit" type="submit" name="submit" class="btn btn-success btn-block">
+        加载中...
+    </button>
+    <button id="change" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+        切换身份
+    </button>
+    {% if room_type == "private" %}
+    <button class="btn btn-info" style="width: 100%; margin-top: 10px;" onclick="alert(token)">
+        展示房间密钥
+    </button>
+    {% endif %}
+    <br />
+    <br />
+    <hr />
+    {% if chat %}
     {% for i in chat %}
-        <h4>
-            <b>{{ i.0 }}</b>
-            &emsp;
-            <small alt="{{ i.2 }}"></small>
-        </h4>
-        <div>
-            {% for j in i.1 %}
-                <p style="line-height: 20px;">
-                    {% for k in range(j|length - 1) %}
-                        {{ j[k]|replace("<", "&lt;")|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                    {% endfor %}
-                    {{ j|last|replace("<", "&lt;")|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
-                </p>
-            {% endfor %}
-        </div>
-        <hr/>
+    <h4>
+        <b>{{ i.0 }}</b>
+        &emsp;
+        <small alt="{{ i.2 }}"></small>
+    </h4>
+    <div>
+        {% for j in i.1 %}
+        <p style="line-height: 20px;">
+            {% for k in range(j|length - 1) %}
+            {{ j[k]|replace("<", "&lt;" )|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                {% endfor %}
+                {{ j|last|replace("<", "&lt;" )|replace(">", "%gt;")|replace(" ", "&ensp;")|safe }}
+        </p>
+        {% endfor %}
+    </div>
+    <hr />
     {% endfor %}
-{% else %}
+    {% else %}
     <h4>
         暂无消息：请发出第一条声音！
     </h4>
-    <hr/>
-{% endif %}
+    <hr />
+    {% endif %}
 </body>
 <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/moment.js/2.24.0/moment.min.js"></script>
@@ -88,7 +91,7 @@
     time_update();
 </script>
 <script>
-    const username = "{{ username }}", private = "{{ private }}", room_type = "{{ room_type }}", token = "{{ token }}";
+    const username = "{{ username }}", private = "{{ private }}", room_type = "{{ room_type }}", token = "{{ token }}", check = "{{ check }}";
     console.log("异想之旅长期寻找志同道合的朋友一起加入开发团队！mail@yixiangzhilv.com");
     const room = window.location.href.split("/")[3].split("?")[0].toLowerCase();
     let send_type = localStorage.getItem(room);
@@ -119,20 +122,26 @@
         }
     }).click();
 
-    $("#text_submit").click(function () {
-        let text = $("#text").val();
-        if (text === "") {
-            return;
-        }
-        $.post("", {
-            "text": text,
-            "send_type": send_type
-        }, function (result) {
-            console.log(result);
-            if (result === "Success") location.reload();
-            else alert(result);
+    if (check) {
+        $("#text_submit").attr("disabled", "disabled").css("cursor", "not-allowed");
+        $("#text_submit").text("目前您无法在此房间发送消息，若有疑问请联系管理员！");
+    } else {
+        $("#text_submit").click(function () {
+            let text = $("#text").val();
+            if (!text) {
+                return;
+            }
+            $.post("", {
+                "text": text,
+                "send_type": send_type
+            }, function (result) {
+                console.log(result);
+                if (result === "Success") location.reload();
+                else alert(result);
+            })
         })
-    })
+    }
 </script>
 <script src="https://cdn.yixiangzhilv.com/js/yxzl.js" type="module"></script>
+
 </html>

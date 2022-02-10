@@ -121,9 +121,9 @@ def board(name):
     if rooms.get(name) and rooms[name] == "private" and session[
             "username"] not in private_rooms[name]["members"]:
         return "错误：您无权访问该private房间！", 403
-    elif check(name):
-        return check(name), 403
     if request.method == "POST":
+        if check(name):
+            return check(name), 403
         if request.form.get("text"):
             if request.form["send_type"] == "public" or rooms.get(
                     name) == "private":
@@ -160,7 +160,8 @@ def board(name):
                                username=session["username"],
                                token=token,
                                private=session["private"],
-                               room_type=rooms.get(name))
+                               room_type=rooms.get(name),
+                               check=check(name))
 
 
 @app.route("/", methods=["GET", "POST"])
